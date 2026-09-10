@@ -13,6 +13,7 @@ import { SiswaPortal } from './components/SiswaPortal';
 import { LoginModal } from './components/LoginModal';
 import { ModalUbahFotoGuru } from './components/ModalUbahFotoGuru';
 import { GoogleDriveSyncModal } from './components/GoogleDriveSyncModal';
+import { AppsScriptSyncModal } from './components/AppsScriptSyncModal';
 import { AcademicBackupPayload } from './services/googleDriveService';
 import {
   Student,
@@ -159,6 +160,8 @@ export default function App() {
   const [isTeacherPhotoModalOpen, setIsTeacherPhotoModalOpen] = useState(false);
   // Modal for Google Drive Sync & Backup
   const [isDriveSyncModalOpen, setIsDriveSyncModalOpen] = useState(false);
+  // Modal for Google Spreadsheet Apps Script Sync
+  const [isAppsScriptModalOpen, setIsAppsScriptModalOpen] = useState(false);
 
   // Sync state to local storage
   useEffect(() => {
@@ -276,6 +279,7 @@ export default function App() {
         teacherProfile={teacherProfile}
         onEditTeacherProfile={() => setIsTeacherPhotoModalOpen(true)}
         onOpenDriveSync={() => setIsDriveSyncModalOpen(true)}
+        onOpenAppsScriptSync={() => setIsAppsScriptModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -286,6 +290,7 @@ export default function App() {
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
           onSwitchToStudentPortal={() => setIsLoginModalOpen(true)}
           onOpenDriveSync={() => setIsDriveSyncModalOpen(true)}
+          onOpenAppsScriptSync={() => setIsAppsScriptModalOpen(true)}
         />
 
         {/* Dynamic Page Views */}
@@ -503,6 +508,20 @@ export default function App() {
       <GoogleDriveSyncModal
         isOpen={isDriveSyncModalOpen}
         onClose={() => setIsDriveSyncModalOpen(false)}
+        teacherProfile={teacherProfile}
+        students={students}
+        grades={grades}
+        attendance={attendance}
+        classes={classes}
+        schedules={schedules}
+        journals={journals}
+        onRestoreData={handleRestoreFromBackup}
+      />
+
+      {/* Modal Google Spreadsheet Apps Script Sync */}
+      <AppsScriptSyncModal
+        isOpen={isAppsScriptModalOpen}
+        onClose={() => setIsAppsScriptModalOpen(false)}
         teacherProfile={teacherProfile}
         students={students}
         grades={grades}

@@ -225,38 +225,51 @@ export const ProfilSiswa: React.FC<ProfilSiswaProps> = ({
     }
   };
 
-  // Collective CSV Template Download (User Request 2)
+  // Collective CSV Template Download (Format Profil Siswa Lengkap)
   const handleDownloadCollectiveTemplate = () => {
     const headers = [
       { key: 'nisn' as keyof Student, label: 'NISN' },
-      { key: 'nama_lengkap' as keyof Student, label: 'Nama Lengkap' },
+      { key: 'nama_lengkap' as keyof Student, label: 'Nama Siswa' },
       { key: 'kelas' as keyof Student, label: 'Kelas' },
-      { key: 'agama' as keyof Student, label: 'Agama' },
-      { key: 'no_HP' as keyof Student, label: 'No HP Siswa' },
-      { key: 'hoby' as keyof Student, label: 'Hobby' },
+      { key: 'no_HP' as keyof Student, label: 'No HP' },
+      { key: 'hoby' as keyof Student, label: 'Hoby & Kegemaran' },
+      { key: 'rencana_tamat_SMA' as keyof Student, label: 'Rencana Setelah Tamat SMA' },
       { key: 'nama_ayah' as keyof Student, label: 'Nama Ayah' },
       { key: 'pekerjaan_ayah' as keyof Student, label: 'Pekerjaan Ayah' },
-      { key: 'no_HP_ayah' as keyof Student, label: 'No HP Ayah' },
+      { key: 'no_HP_ayah' as keyof Student, label: 'No. HP Ayah' },
       { key: 'nama_ibu' as keyof Student, label: 'Nama Ibu' },
-      { key: 'pekerjaan_ibu' as keyof Student, label: 'Pekerjaan Ibu' },
+      { key: 'pekerjaan_ibu' as keyof Student, label: 'Pekerjaan' },
       { key: 'no_HP_ibu' as keyof Student, label: 'No HP Ibu' },
       { key: 'alamat_rumah' as keyof Student, label: 'Alamat Rumah' },
-      { key: 'status_tempat_tinggal' as keyof Student, label: 'Status Tempat Tinggal' },
-      { key: 'rencana_tamat_SMA' as keyof Student, label: 'Rencana Setelah Tamat SMA' },
-      { key: 'pembelajaran_nyaman' as keyof Student, label: 'Pembelajaran Yang Nyaman' },
-      { key: 'harapan_guru_matematika' as keyof Student, label: 'Harapan Terhadap Guru Matematika' },
-      { key: 'URL_foto' as keyof Student, label: 'Link Foto Siswa (URL)' },
+      { key: 'status_tempat_tinggal' as keyof Student, label: 'Status Tinggal' },
+      { key: 'pembelajaran_nyaman' as keyof Student, label: 'Pembelajaran yang membuat Nyaman' },
+      { key: 'harapan_guru_matematika' as keyof Student, label: 'Harapan terhadap Guru Matematika' },
     ];
 
     const rowsToExport = (classStudents.length > 0 ? classStudents : students).map((s) => ({
-      ...s,
+      nisn: s.nisn,
+      nama_lengkap: s.nama_lengkap,
+      kelas: s.kelas,
+      no_HP: s.no_HP || '',
+      hoby: s.hoby || '',
+      rencana_tamat_SMA: s.rencana_tamat_SMA || '',
+      nama_ayah: s.nama_ayah || '',
+      pekerjaan_ayah: s.pekerjaan_ayah || '',
+      no_HP_ayah: s.no_HP_ayah || '',
+      nama_ibu: s.nama_ibu || '',
+      pekerjaan_ibu: s.pekerjaan_ibu || '',
+      no_HP_ibu: s.no_HP_ibu || '',
+      alamat_rumah: s.alamat_rumah || '',
+      status_tempat_tinggal: s.status_tempat_tinggal || 'Bersama Orang Tua',
+      pembelajaran_nyaman: s.pembelajaran_nyaman || '',
+      harapan_guru_matematika: s.harapan_guru_matematika || '',
     }));
 
-    exportToCSV(`Template_Profil_Siswa_Kelas_${selectedClass}`, rowsToExport as any, headers);
-    showToast(`Template CSV profil kelas ${selectedClass} berhasil diunduh!`);
+    exportToCSV(`Format_Profil_Siswa_Kelas_${selectedClass}`, rowsToExport as any, headers);
+    showToast(`Format template profil siswa kelas ${selectedClass} berhasil diunduh!`);
   };
 
-  // Collective CSV Upload
+  // Collective CSV Upload (Mengisi Informasi Profil Kolektif)
   const handleUploadCSVCollective = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -279,32 +292,63 @@ export const ProfilSiswa: React.FC<ProfilSiswaProps> = ({
           const map = new Map<string, Student>(prev.map((s) => [s.nisn, s]));
 
           parsed.forEach((row) => {
-            const nisn = row['NISN'] || row['nisn'];
-            const nama = row['Nama Lengkap'] || row['nama_lengkap'];
-            const kelas = row['Kelas'] || row['kelas'] || selectedClass;
+            const rawNisn = row['NISN'] || row['nisn'] || row['Nisn'];
+            const rawNama =
+              row['Nama Siswa'] ||
+              row['nama_lengkap'] ||
+              row['Nama Lengkap'] ||
+              row['Nama'] ||
+              row['nama'];
+            const rawKelas = row['Kelas'] || row['kelas'] || selectedClass;
 
-            if (nisn && nama) {
+            if (rawNisn && rawNama) {
+              const nisn = String(rawNisn).trim();
               const existing = map.get(nisn);
+
               const updatedStudent: Student = {
                 ...(existing || {}),
-                nisn: nisn.trim(),
-                nama_lengkap: nama.trim().toUpperCase(),
-                kelas: kelas.trim(),
-                agama: row['Agama'] || row['agama'] || existing?.agama || 'Islam',
-                no_HP: row['No HP Siswa'] || row['no_HP'] || existing?.no_HP || '',
-                hoby: row['Hobby'] || row['hoby'] || existing?.hoby || '',
+                nisn: nisn,
+                nama_lengkap: String(rawNama).trim().toUpperCase(),
+                kelas: String(rawKelas).trim(),
+                no_HP: row['No HP'] || row['no_HP'] || row['No. HP'] || row['No HP Siswa'] || existing?.no_HP || '',
+                hoby: row['Hoby & Kegemaran'] || row['hoby'] || row['Hobi'] || row['Hobby'] || existing?.hoby || '',
+                rencana_tamat_SMA:
+                  row['Rencana Setelah Tamat SMA'] ||
+                  row['rencana_tamat_SMA'] ||
+                  row['Rencana Tamat SMA'] ||
+                  existing?.rencana_tamat_SMA ||
+                  '',
                 nama_ayah: row['Nama Ayah'] || row['nama_ayah'] || existing?.nama_ayah || '',
                 pekerjaan_ayah: row['Pekerjaan Ayah'] || row['pekerjaan_ayah'] || existing?.pekerjaan_ayah || '',
-                no_HP_ayah: row['No HP Ayah'] || row['no_HP_ayah'] || existing?.no_HP_ayah || '',
+                no_HP_ayah: row['No. HP Ayah'] || row['No HP Ayah'] || row['no_HP_ayah'] || existing?.no_HP_ayah || '',
                 nama_ibu: row['Nama Ibu'] || row['nama_ibu'] || existing?.nama_ibu || '',
-                pekerjaan_ibu: row['Pekerjaan Ibu'] || row['pekerjaan_ibu'] || existing?.pekerjaan_ibu || '',
-                no_HP_ibu: row['No HP Ibu'] || row['no_HP_ibu'] || existing?.no_HP_ibu || '',
-                alamat_rumah: row['Alamat Rumah'] || row['alamat_rumah'] || existing?.alamat_rumah || '',
-                status_tempat_tinggal: row['Status Tempat Tinggal'] || row['status_tempat_tinggal'] || existing?.status_tempat_tinggal || 'Bersama Orang Tua',
-                rencana_tamat_SMA: row['Rencana Setelah Tamat SMA'] || row['rencana_tamat_SMA'] || existing?.rencana_tamat_SMA || '',
-                pembelajaran_nyaman: row['Pembelajaran Yang Nyaman'] || row['pembelajaran_nyaman'] || existing?.pembelajaran_nyaman || '',
-                harapan_guru_matematika: row['Harapan Terhadap Guru Matematika'] || row['harapan_guru_matematika'] || existing?.harapan_guru_matematika || '',
-                URL_foto: row['Link Foto Siswa (URL)'] || row['URL_foto'] || existing?.URL_foto || '',
+                pekerjaan_ibu:
+                  row['Pekerjaan'] ||
+                  row['Pekerjaan Ibu'] ||
+                  row['pekerjaan_ibu'] ||
+                  existing?.pekerjaan_ibu ||
+                  '',
+                no_HP_ibu: row['No HP Ibu'] || row['No. HP Ibu'] || row['no_HP_ibu'] || existing?.no_HP_ibu || '',
+                alamat_rumah: row['Alamat Rumah'] || row['alamat_rumah'] || row['Alamat'] || existing?.alamat_rumah || '',
+                status_tempat_tinggal:
+                  row['Status Tinggal'] ||
+                  row['status_tempat_tinggal'] ||
+                  row['Status Tempat Tinggal'] ||
+                  existing?.status_tempat_tinggal ||
+                  'Bersama Orang Tua',
+                pembelajaran_nyaman:
+                  row['Pembelajaran yang membuat Nyaman'] ||
+                  row['pembelajaran_nyaman'] ||
+                  row['Pembelajaran Yang Nyaman'] ||
+                  existing?.pembelajaran_nyaman ||
+                  '',
+                harapan_guru_matematika:
+                  row['Harapan terhadap Guru Matematika'] ||
+                  row['harapan_guru_matematika'] ||
+                  row['Harapan Terhadap Guru Matematika'] ||
+                  existing?.harapan_guru_matematika ||
+                  '',
+                URL_foto: existing?.URL_foto || '',
                 password: existing?.password || '12345',
               };
 
@@ -321,7 +365,7 @@ export const ProfilSiswa: React.FC<ProfilSiswaProps> = ({
         });
 
         showToast(
-          `Berhasil impor kolektif CSV: ${updatedCount} profil diperbarui, ${addedCount} siswa baru ditambahkan!`
+          `Berhasil impor profil kolektif: ${updatedCount} profil diperbarui, ${addedCount} siswa baru ditambahkan!`
         );
       } catch (err) {
         console.error(err);
@@ -391,21 +435,27 @@ export const ProfilSiswa: React.FC<ProfilSiswaProps> = ({
               </button>
             </div>
 
-            {/* Unduh Template CSV Kolektif */}
+            {/* Unduh Format Template CSV Profil */}
             <button
+              id="btn-unduh-format-profil"
               onClick={handleDownloadCollectiveTemplate}
               className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition-colors"
-              title="Unduh Template CSV untuk edit kolektif di Excel / Google Sheets"
+              title="Unduh Format CSV untuk mengisi profil siswa secara kolektif"
             >
               <Download className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Template CSV</span>
+              <span>Unduh Format CSV</span>
             </button>
 
             {/* Upload CSV Profil Kolektif */}
-            <label className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors cursor-pointer shadow-xs">
+            <label
+              htmlFor="upload-profil-csv"
+              className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors cursor-pointer shadow-xs"
+              title="Upload file CSV untuk mengisi data profil siswa secara kolektif"
+            >
               <Upload className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Upload CSV Kolektif</span>
+              <span>Upload Profil CSV Kolektif</span>
               <input
+                id="upload-profil-csv"
                 type="file"
                 accept=".csv"
                 onChange={handleUploadCSVCollective}
@@ -1046,9 +1096,6 @@ export const ProfilSiswa: React.FC<ProfilSiswaProps> = ({
                     <BookOpen className="w-4 h-4 text-blue-600" />
                     <span>Preferensi Belajar & Harapan terhadap Guru Matematika</span>
                   </h4>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
-                    Asesmen Diagnostik Non-Kognitif
-                  </span>
                 </div>
 
                 {/* Pembelajaran yang membuat nyaman */}

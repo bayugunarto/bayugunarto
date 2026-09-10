@@ -52,18 +52,37 @@ export function parseCSV(csvText: string): Record<string, string>[] {
   const lines = csvText.split(/\r\n|\n/).filter(line => line.trim() !== '');
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  // Detect delimiter (, or ;)
+  const firstLine = lines[0];
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const semicolonCount = (firstLine.match(/;/g) || []).length;
+  const delimiter = semicolonCount > commaCount ? ';' : ',';
+
+  // Split headers
+  const headers = firstLine
+    .split(delimiter)
+    .map(h => h.trim().replace(/^"|"$/g, ''));
+
   const results: Record<string, string>[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    // Basic CSV splitting handling quotes
-    const regex = /(?:^|,)(?:"([^"]*(?:""[^"]*)*)"|([^",]*))/g;
-    const rowValues: string[] = [];
-    let match;
-    while ((match = regex.exec(lines[i])) !== null) {
-      // index 1 is quoted, index 2 is unquoted
-      const val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
-      rowValues.push(val !== undefined ? val.trim() : '');
+    const line = lines[i];
+    let rowValues: string[] = [];
+
+    if (delimiter === ';') {
+      const regex = /(?:^|;)(?:"([^"]*(?:""[^"]*)*)"|([^;]*))/g;
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        const val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
+        rowValues.push(val !== undefined ? val.trim() : '');
+      }
+    } else {
+      const regex = /(?:^|,)(?:"([^"]*(?:""[^"]*)*)"|([^",]*))/g;
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        const val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
+        rowValues.push(val !== undefined ? val.trim() : '');
+      }
     }
 
     if (rowValues.length > 0) {

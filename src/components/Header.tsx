@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, BookOpen, ShieldCheck, Sparkles, Menu, GraduationCap, Cloud } from 'lucide-react';
+import { Clock, BookOpen, ShieldCheck, Sparkles, Menu, GraduationCap, Cloud, FileSpreadsheet } from 'lucide-react';
 import { ActiveTab } from './Sidebar';
 
 interface HeaderProps {
@@ -7,6 +7,7 @@ interface HeaderProps {
   onOpenMobileSidebar?: () => void;
   onSwitchToStudentPortal?: () => void;
   onOpenDriveSync?: () => void;
+  onOpenAppsScriptSync?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,6 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileSidebar,
   onSwitchToStudentPortal,
   onOpenDriveSync,
+  onOpenAppsScriptSync,
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -118,6 +120,18 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 self-end md:self-auto">
+        {onOpenAppsScriptSync && (
+          <button
+            type="button"
+            onClick={onOpenAppsScriptSync}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+            title="Sinkronisasi Database Google Spreadsheet (Apps Script - Gratis & Otomatis)"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Google Spreadsheet</span>
+          </button>
+        )}
+
         {onOpenDriveSync && (
           <button
             type="button"

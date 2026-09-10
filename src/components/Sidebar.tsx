@@ -12,7 +12,8 @@ import {
   BookOpen,
   X,
   Camera,
-  Cloud
+  Cloud,
+  FileSpreadsheet
 } from 'lucide-react';
 import { TeacherProfile } from '../types';
 
@@ -36,6 +37,7 @@ interface SidebarProps {
   teacherProfile?: TeacherProfile;
   onEditTeacherProfile?: () => void;
   onOpenDriveSync?: () => void;
+  onOpenAppsScriptSync?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -48,6 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   teacherProfile,
   onEditTeacherProfile,
   onOpenDriveSync,
+  onOpenAppsScriptSync,
 }) => {
   const menuItems = [
     { id: 'dashboard' as ActiveTab, label: 'Dashboard', icon: LayoutDashboard },
@@ -191,6 +194,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Bottom section with Portal Siswa Switch, Status and Logout */}
         <div className="p-4 border-t border-slate-100 space-y-2">
+          {onOpenAppsScriptSync && (
+            <button
+              type="button"
+              onClick={() => {
+                onOpenAppsScriptSync();
+                if (onCloseMobile) onCloseMobile();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-emerald-800 border border-emerald-200/80 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              title="Sinkronisasi Database Google Spreadsheet (Apps Script)"
+            >
+              <span className="flex items-center gap-2">
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Google Spreadsheet</span>
+              </span>
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-600 text-white">
+                Gratis
+              </span>
+            </button>
+          )}
+
           {onOpenDriveSync && (
             <button
               type="button"
