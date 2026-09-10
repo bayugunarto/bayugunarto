@@ -15,6 +15,7 @@ import { ModalUbahFotoGuru } from './components/ModalUbahFotoGuru';
 import { GoogleDriveSyncModal } from './components/GoogleDriveSyncModal';
 import { AppsScriptSyncModal } from './components/AppsScriptSyncModal';
 import { AcademicBackupPayload } from './services/googleDriveService';
+import { getStoredAppsScriptUrl, pullDataFromGoogleSheets, AcademicSyncPayload } from './services/appsScriptService';
 import {
   Student,
   GradeItem,
@@ -222,7 +223,7 @@ export default function App() {
     }
   };
 
-  const handleRestoreFromBackup = (payload: AcademicBackupPayload) => {
+  const handleRestoreFromBackup = (payload: AcademicBackupPayload | AcademicSyncPayload) => {
     if (payload.teacherProfile) setTeacherProfile(payload.teacherProfile);
     if (payload.students && Array.isArray(payload.students)) setStudents(payload.students);
     if (payload.grades && Array.isArray(payload.grades)) setGrades(payload.grades);
@@ -231,6 +232,23 @@ export default function App() {
     if (payload.schedules && Array.isArray(payload.schedules)) setSchedules(payload.schedules);
     if (payload.journals && Array.isArray(payload.journals)) setJournals(payload.journals);
   };
+
+  // Otomatis tarik data terbaru dari Google Spreadsheet saat aplikasi pertama kali dibuka
+  useEffect(() => {
+    const url = getStoredAppsScriptUrl();
+    if (url && url.startsWith('https://script.google.com')) {
+      pullDataFromGoogleSheets(url)
+        .then((data) => {
+          if (data) {
+            handleRestoreFromBackup(data);
+            console.log('Sinkronisasi otomatis dari Google Spreadsheet berhasil dimuat.');
+          }
+        })
+        .catch((err) => {
+          console.warn('Auto-pull Google Spreadsheet dilewati:', err);
+        });
+    }
+  }, []);
 
   // If active user is Student, render the dedicated Student Portal View
   if (currentUser.role === 'siswa') {

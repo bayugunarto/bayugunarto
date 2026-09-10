@@ -30,8 +30,11 @@ export interface AcademicSyncPayload {
 const STORAGE_KEY_APPSCRIPT_URL = 'sistem_akademik_appscript_url';
 const STORAGE_KEY_LAST_SHEETS_SYNC = 'sistem_akademik_last_sheets_sync';
 
+export const DEFAULT_APPSCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbxnSj7WkesqkDp1ewjhPIS0WMkz1WEUgD4-EhaSwdPRLeVz4n--q8q5AS0yTR7g0qKZVQ/exec';
+
 export const getStoredAppsScriptUrl = (): string => {
-  return localStorage.getItem(STORAGE_KEY_APPSCRIPT_URL) || '';
+  return localStorage.getItem(STORAGE_KEY_APPSCRIPT_URL) || DEFAULT_APPSCRIPT_URL;
 };
 
 export const saveStoredAppsScriptUrl = (url: string) => {
