@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Akademik Guru Matematika SMA",
+  "description": "Aplikasi pengelolaan data siswa, profil lengkap siswa, kehadiran, manajemen nilai berbasis spreadsheet dengan materi & TP, serta sinkronisasi Google Drive dan Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
